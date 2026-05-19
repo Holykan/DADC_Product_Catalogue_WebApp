@@ -1,0 +1,147 @@
+/* Hidden on screen */
+.pricelist-pdf {
+  display: none;
+}
+
+@media print {
+  /* Hide everything else */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only price list */
+  .pricelist-pdf {
+    display: block !important;
+    visibility: visible !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 2rem 2.5rem;
+    background: #fff;
+    font-family: 'DM Sans', sans-serif;
+    color: #0f2a4a;
+    box-sizing: border-box;
+  }
+
+  .pricelist-pdf * {
+    visibility: visible !important;
+  }
+
+  /* ── Header ── */
+  .pricelist-header {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .pricelist-logo {
+    height: 70px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pricelist-address {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0f2a4a;
+    margin: 0.2rem 0;
+    letter-spacing: 0.5px;
+  }
+
+  .pricelist-subtitle {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f2a4a;
+    margin: 0.2rem 0 0 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── Divider ── */
+  .pricelist-divider {
+    border: none;
+    border-top: 3px solid #0f2a4a;
+    margin: 0.8rem 0 1rem 0;
+  }
+
+  /* ── Category ── */
+  .pricelist-category {
+    margin-bottom: 1.2rem;
+    page-break-inside: avoid;
+  }
+
+  .pricelist-category-title {
+    background-color: #0f2a4a;
+    color: #fff;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── Table ── */
+  .pricelist-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .pricelist-table th {
+    background-color: #f0f7ff;
+    color: #0f2a4a;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-bottom: 1px solid #dbeafe;
+  }
+
+  .pricelist-table td {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+
+  .pricelist-table tr:last-child td {
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .pricelist-table tr:nth-child(even) td {
+    background-color: #fafbfd;
+  }
+
+  .col-name {
+    width: 75%;
+  }
+
+  .col-price {
+    width: 25%;
+    text-align: right;
+    font-weight: 600;
+    color: #1461b0;
+  }
+
+  /* ── Footer ── */
+  .pricelist-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.68rem;
+    color: #94a3b8;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Page settings ── */
+  @page {
+    margin: 1cm;
+    size: A4;
+  }
+}

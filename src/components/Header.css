@@ -1,0 +1,223 @@
+.header {
+  background-color: #0f2a4a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 70px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  width: 100%;
+}
+
+/* ── Left side ── */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 10px 0;
+}
+
+.logo-img {
+  height: 46px;
+  width: auto;
+  object-fit: contain;
+  max-width: 150px;
+}
+
+/* ── Divider line ── */
+.header-divider {
+  width: 1px;
+  height: 36px;
+  background-color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+/* ── Title block ── */
+.header-title-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 0;
+}
+
+.header-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* ── Right side ── */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.dots-btn {
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  display: none;
+}
+
+/* ── Dropdown menu ── */
+.menu-wrapper {
+  position: relative;
+  display: none;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem;
+  min-width: 160px;
+  z-index: 200;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: none;
+  background: transparent;
+  color: #0f2a4a;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #f0f7ff;
+  color: #1461b0;
+}
+
+/* ── Download button ── */
+.download-btn {
+  background-color: #1461b0;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.download-btn:hover {
+  background-color: #1a72cc;
+  transform: translateY(-1px);
+}
+
+.download-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Desktop icons ── */
+.desktop-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Mobile only ── */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 1rem;
+  }
+
+  .logo-img {
+    height: 38px;
+    max-width: 100px;
+  }
+
+  .header-title {
+    font-size: 0.95rem;
+  }
+
+  .header-updated {
+    display: none;
+  }
+
+  .desktop-icons {
+    display: none;
+  }
+
+  .menu-wrapper {
+    display: block;
+  }
+
+  .dots-btn {
+    display: flex;
+  }
+
+  .download-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .download-text {
+    display: none;
+  }
+
+  .header-divider {
+    height: 28px;
+  }
+}
