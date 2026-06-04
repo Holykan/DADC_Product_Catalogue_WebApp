@@ -70,7 +70,7 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
     const pageHeight = pdf.internal.pageSize.getHeight()
 
     const img = new Image()
-    img.src = '/dadc_logo.'
+    img.src = '/dadc_logo.webp'
     await new Promise((resolve) => { img.onload = resolve })
     const imgWidth = 45
     const imgHeight = (img.height * imgWidth) / img.width
