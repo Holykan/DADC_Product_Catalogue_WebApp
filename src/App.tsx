@@ -3,10 +3,10 @@ import { Routes, Route } from 'react-router-dom'
 import './index.css'
 import Header from './components/Header'
 import SearchBar from './components/SearchBar'
-import CategoryCard from './components/CategoryCard'
+import ProductGrid, { SkeletonCard } from './components/ProductGrid'
+import ListView from './components/ListView'
 import Footer from './components/Footer'
 import Cart from './components/Cart'
-import PriceListPDF from './components/PriceListPDF'
 import AdminLogin from './pages/AdminLogin'
 import Admin from './pages/Admin'
 import { supabase } from './supabaseClient'
@@ -24,12 +24,9 @@ type Product = {
   country: string
   bottle_size_cl: number
   pack_size: number
-}
-
-type CategorySummary = {
-  name: string
-  productCount: number
-  brandCount: number
+  image_url: string
+  featured: boolean
+  featured_order: number
 }
 
 export type Filters = {
@@ -37,6 +34,7 @@ export type Filters = {
   category: string
   brand: string
   country: string
+  subcategory: string
   priceOrder: 'asc' | 'desc' | null
 }
 
@@ -48,14 +46,17 @@ function CataloguePage() {
     category: '',
     brand: '',
     country: '',
+    subcategory: '',
     priceOrder: null,
   })
   const [cartOpen, setCartOpen] = useState(false)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const allCategories = [...new Set(allProducts.map((p) => p.category).filter(Boolean))].sort()
   const allBrands = [...new Set(allProducts.map((p) => p.brand).filter(Boolean))].sort()
   const allCountries = [...new Set(allProducts.map((p) => p.country).filter(Boolean))].sort()
+  const allSubcategories = [...new Set(allProducts.map((p) => p.subcategory).filter(Boolean))].sort()
 
   const fetchAllProducts = useCallback(async () => {
     setLoading(true)
@@ -147,7 +148,7 @@ function CataloguePage() {
     sortedCategories.forEach((category) => {
       const rows = grouped[category].map((p) => [
         p.name,
-        'GHS ' + Number(p.price).toFixed(2),
+        'GHS ' + Math.round(p.price).toLocaleString('en-GH'),
       ])
 
       autoTable(pdf, {
@@ -235,38 +236,31 @@ function CataloguePage() {
     const matchesCategory = !filters.category || product.category === filters.category
     const matchesBrand = !filters.brand || product.brand === filters.brand
     const matchesCountry = !filters.country || product.country === filters.country
+    const matchesSubcategory = !filters.subcategory || product.subcategory === filters.subcategory
 
-    return matchesSearch && matchesCategory && matchesBrand && matchesCountry
+    return matchesSearch && matchesCategory && matchesBrand && matchesCountry && matchesSubcategory
   })
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (filters.priceOrder === 'asc') return a.price - b.price
-    if (filters.priceOrder === 'desc') return b.price - a.price
-    return 0
-  })
-
-  const categoryMap: Record<string, { brands: Set<string>; products: Product[] }> = {}
-  sortedProducts.forEach((product) => {
-    const cat = product.category || 'Uncategorized'
-    if (!categoryMap[cat]) {
-      categoryMap[cat] = { brands: new Set(), products: [] }
-    }
-    categoryMap[cat].products.push(product)
-    if (product.brand) categoryMap[cat].brands.add(product.brand)
-  })
-
-  const filteredCategories: CategorySummary[] = Object.entries(categoryMap)
-    .map(([name, { brands, products }]) => ({
-      name,
-      productCount: products.length,
-      brandCount: brands.size,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name))
+  const sortedProducts = filters.priceOrder
+    ? [...filteredProducts].sort((a, b) => {
+        if (filters.priceOrder === 'asc') return a.price - b.price
+        if (filters.priceOrder === 'desc') return b.price - a.price
+        return 0
+      })
+    : [
+        ...filteredProducts
+          .filter((p) => p.featured)
+          .sort((a, b) => (a.featured_order ?? 0) - (b.featured_order ?? 0)),
+        ...filteredProducts.filter((p) => !p.featured),
+      ]
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', margin: 0, padding: 0 }}>
-      <PriceListPDF products={allProducts} />
-      <Header onDownloadPDF={handleDownloadPDF} />
+      <Header
+        onDownloadPDF={handleDownloadPDF}
+        viewMode={viewMode}
+        onToggleView={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+      />
       <SearchBar
         totalItems={sortedProducts.length}
         filters={filters}
@@ -274,27 +268,32 @@ function CataloguePage() {
         categories={allCategories}
         brands={allBrands}
         countries={allCountries}
+        subcategories={allSubcategories}
       />
       {loading ? (
-        <div className="loading">Loading products...</div>
-      ) : filteredCategories.length === 0 ? (
-        <div className="loading">No products match your search.</div>
-      ) : (
-        <div className="categories-list">
-          {filteredCategories.map((cat) => (
-            <CategoryCard
-              key={cat.name}
-              name={cat.name}
-              productCount={cat.productCount}
-              brandCount={cat.brandCount}
-              filteredProducts={categoryMap[cat.name]?.products || []}
-              cartItems={cartItems}
-              onAddToCart={handleAddToCart}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemove={handleRemove}
-            />
-          ))}
+        <div className="skeleton-grid-wrapper">
+          <div className="product-grid">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
         </div>
+      ) : viewMode === 'grid' ? (
+        <ProductGrid
+          products={sortedProducts}
+          cartItems={cartItems}
+          onAddToCart={handleAddToCart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemove={handleRemove}
+        />
+      ) : (
+        <ListView
+          products={sortedProducts}
+          cartItems={cartItems}
+          onAddToCart={handleAddToCart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemove={handleRemove}
+        />
       )}
       <Footer
         cartCount={cartItems.length}

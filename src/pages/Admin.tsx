@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../supabaseClient'
 import './Admin.css'
-import { Plus, Pencil, Trash2, Search, X, Upload, LogOut, Download } from 'lucide-react'
+import {
+  Plus, Pencil, Trash2, Search, X,
+  Upload, LogOut, Download, Star, StarOff
+} from 'lucide-react'
 
 type Product = {
   id: number
@@ -15,6 +18,9 @@ type Product = {
   country: string
   bottle_size_cl: number
   pack_size: number
+  image_url: string
+  featured: boolean
+  featured_order: number
 }
 
 const emptyProduct = {
@@ -40,11 +46,14 @@ const Admin = ({ onLogout }: Props) => {
   const [search, setSearch] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingImageUrl, setEditingImageUrl] = useState<string>('')
   const [formData, setFormData] = useState(emptyProduct)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [csvUploading, setCsvUploading] = useState(false)
+  const [imageUploading, setImageUploading] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'products' | 'featured'>('products')
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -76,6 +85,10 @@ const Admin = ({ onLogout }: Props) => {
       String(p.code).includes(s)
     )
   })
+
+  const featuredProducts = [...products]
+    .filter((p) => p.featured)
+    .sort((a, b) => (a.featured_order ?? 0) - (b.featured_order ?? 0))
 
   const handleAdd = async () => {
     setSaving(true)
@@ -118,6 +131,7 @@ const Admin = ({ onLogout }: Props) => {
         country: formData.country,
         bottle_size_cl: Number(formData.bottle_size_cl),
         pack_size: Number(formData.pack_size),
+        image_url: editingImageUrl || null,
       })
       .eq('id', editingId)
     if (error) {
@@ -126,6 +140,7 @@ const Admin = ({ onLogout }: Props) => {
       showToast('Product updated successfully!')
       setEditingId(null)
       setFormData(emptyProduct)
+      setEditingImageUrl('')
       fetchProducts()
     }
     setSaving(false)
@@ -142,8 +157,76 @@ const Admin = ({ onLogout }: Props) => {
     } else {
       showToast('Product deleted successfully!')
       setDeleteId(null)
+      setProducts((prev) => prev.filter((p) => p.id !== deleteId))
+    }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !editingId) return
+    setImageUploading(true)
+
+    const product = products.find((p) => p.id === editingId)
+    if (!product) return
+
+    const ext = file.name.split('.').pop()
+    const fileName = product.code + '.' + ext
+
+    const { error: uploadError } = await supabase.storage
+      .from('products-images')
+      .upload(fileName, file, { upsert: true })
+
+    if (uploadError) {
+      showToast('Image upload failed: ' + uploadError.message)
+      setImageUploading(false)
+      return
+    }
+
+    const { data } = supabase.storage
+      .from('products-images')
+      .getPublicUrl(fileName)
+
+    setEditingImageUrl(data.publicUrl)
+    showToast('Image uploaded successfully!')
+    setImageUploading(false)
+  }
+
+  const handleToggleFeatured = async (product: Product) => {
+    const newFeatured = !product.featured
+    const newOrder = newFeatured
+      ? Math.max(...products.filter(p => p.featured).map(p => p.featured_order ?? 0), 0) + 1
+      : 0
+
+    const { error } = await supabase
+      .from('products')
+      .update({
+        featured: newFeatured,
+        featured_order: newOrder,
+      })
+      .eq('id', product.id)
+
+    if (error) {
+      showToast('Error updating featured status: ' + error.message)
+    } else {
+      showToast(newFeatured ? 'Added to featured!' : 'Removed from featured!')
       fetchProducts()
     }
+  }
+
+  const handleMoveFeatured = async (product: Product, direction: 'up' | 'down') => {
+    const sorted = [...featuredProducts]
+    const index = sorted.findIndex((p) => p.id === product.id)
+    if (direction === 'up' && index === 0) return
+    if (direction === 'down' && index === sorted.length - 1) return
+
+    const swapIndex = direction === 'up' ? index - 1 : index + 1
+    const swapProduct = sorted[swapIndex]
+
+    await supabase.from('products').update({ featured_order: swapProduct.featured_order }).eq('id', product.id)
+    await supabase.from('products').update({ featured_order: product.featured_order }).eq('id', swapProduct.id)
+
+    showToast('Order updated!')
+    fetchProducts()
   }
 
   const handleCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,6 +308,7 @@ const Admin = ({ onLogout }: Props) => {
 
   const startEdit = (product: Product) => {
     setEditingId(product.id)
+    setEditingImageUrl(product.image_url || '')
     setFormData({
       code: String(product.code),
       name: product.name,
@@ -247,6 +331,45 @@ const Admin = ({ onLogout }: Props) => {
   }) => (
     <div className="admin-form-card">
       <h3 className="admin-form-title">{title}</h3>
+
+      {/* Image upload section */}
+      {editingId && (
+        <div className="admin-image-section">
+          <div className="admin-image-preview">
+            {editingImageUrl ? (
+              <img src={editingImageUrl} alt="Product" className="admin-image-thumb" />
+            ) : (
+              <div className="admin-image-placeholder">🍾 No image</div>
+            )}
+          </div>
+          <div className="admin-image-upload">
+            <label className="admin-image-upload-btn">
+              {imageUploading ? 'Uploading...' : (
+                <>
+                  <Upload size={14} />
+                  {editingImageUrl ? 'Change Image' : 'Upload Image'}
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+                disabled={imageUploading}
+              />
+            </label>
+            {editingImageUrl && (
+              <button
+                className="admin-image-remove-btn"
+                onClick={() => setEditingImageUrl('')}
+              >
+                <X size={13} /> Remove
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="admin-form-grid">
         <div className="admin-form-group">
           <label>Product Code *</label>
@@ -378,6 +501,24 @@ const Admin = ({ onLogout }: Props) => {
         </div>
       )}
 
+      {/* Add/Edit form modal */}
+      {(showAddForm || editingId) && (
+        <div className="admin-modal-overlay">
+          <div className="admin-form-modal">
+            <ProductForm
+              title={editingId ? 'Edit Product' : 'Add New Product'}
+              onSave={editingId ? handleEdit : handleAdd}
+              onCancel={() => {
+                setShowAddForm(false)
+                setEditingId(null)
+                setFormData(emptyProduct)
+                setEditingImageUrl('')
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="admin-header">
         <div className="admin-header-left">
@@ -392,134 +533,232 @@ const Admin = ({ onLogout }: Props) => {
         </button>
       </div>
 
-      {/* Actions bar */}
-      <div className="admin-actions-bar">
-        <div className="admin-search-wrap">
-          <Search size={15} className="admin-search-icon" />
-          <input
-            type="text"
-            className="admin-search-input"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <button className="admin-search-clear" onClick={() => setSearch('')}>
-              <X size={13} />
-            </button>
-          )}
-        </div>
-
-        <div className="admin-action-btns">
-          {/* Download Template */}
-          <button
-            className="admin-template-btn"
-            onClick={handleDownloadTemplate}
-          >
-            <Download size={15} /> Download Template
-          </button>
-
-          {/* CSV Upload */}
-          <label className="admin-csv-btn">
-            {csvUploading ? 'Uploading...' : (
-              <>
-                <Upload size={15} /> Bulk Update CSV
-              </>
-            )}
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleCSVUpload}
-              style={{ display: 'none' }}
-            />
-          </label>
-
-          {/* Add product */}
-          <button
-            className="admin-add-btn"
-            onClick={() => {
-              setShowAddForm(!showAddForm)
-              setEditingId(null)
-              setFormData(emptyProduct)
-            }}
-          >
-            <Plus size={15} /> Add Product
-          </button>
-        </div>
+      {/* Tabs */}
+      <div className="admin-tabs">
+        <button
+          className={activeTab === 'products' ? 'admin-tab active' : 'admin-tab'}
+          onClick={() => setActiveTab('products')}
+        >
+          All Products
+        </button>
+        <button
+          className={activeTab === 'featured' ? 'admin-tab active' : 'admin-tab'}
+          onClick={() => setActiveTab('featured')}
+        >
+          ⭐ Featured ({featuredProducts.length})
+        </button>
       </div>
 
-      {/* Add form */}
-      {showAddForm && (
-        <ProductForm
-          title="Add New Product"
-          onSave={handleAdd}
-          onCancel={() => {
-            setShowAddForm(false)
-            setFormData(emptyProduct)
-          }}
-        />
+      {/* Products Tab */}
+      {activeTab === 'products' && (
+        <>
+          {/* Actions bar */}
+          <div className="admin-actions-bar">
+            <div className="admin-search-wrap">
+              <Search size={15} className="admin-search-icon" />
+              <input
+                type="text"
+                className="admin-search-input"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {search && (
+                <button className="admin-search-clear" onClick={() => setSearch('')}>
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+
+            <div className="admin-action-btns">
+              <button
+                className="admin-template-btn"
+                onClick={handleDownloadTemplate}
+              >
+                <Download size={15} /> Download Template
+              </button>
+
+              <label className="admin-csv-btn">
+                {csvUploading ? 'Uploading...' : (
+                  <>
+                    <Upload size={15} /> Bulk Update CSV
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleCSVUpload}
+                  style={{ display: 'none' }}
+                />
+              </label>
+
+              <button
+                className="admin-add-btn"
+                onClick={() => {
+                  setShowAddForm(true)
+                  setEditingId(null)
+                  setFormData(emptyProduct)
+                }}
+              >
+                <Plus size={15} /> Add Product
+              </button>
+            </div>
+          </div>
+
+          {/* Products table */}
+          {loading ? (
+            <div className="admin-loading">Loading products...</div>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Country</th>
+                    <th>Price (GHS)</th>
+                    <th>Featured</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredProducts.map((product) => (
+                    <tr key={product.id}>
+                      <td className="td-code">{product.code}</td>
+                      <td>
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="admin-table-image"
+                          />
+                        ) : (
+                          <div className="admin-table-no-image">🍾</div>
+                        )}
+                      </td>
+                      <td className="td-name">{product.name}</td>
+                      <td>{product.brand}</td>
+                      <td>{product.category}</td>
+                      <td>{product.country}</td>
+                      <td className="td-price">
+                        GHS {Math.round(product.price).toLocaleString('en-GH')}
+                      </td>
+                      <td>
+                        <button
+                          className={product.featured ? 'admin-featured-btn active' : 'admin-featured-btn'}
+                          onClick={() => handleToggleFeatured(product)}
+                          title={product.featured ? 'Remove from featured' : 'Add to featured'}
+                        >
+                          {product.featured ? <Star size={14} /> : <StarOff size={14} />}
+                        </button>
+                      </td>
+                      <td className="td-actions">
+                        <button
+                          className="admin-edit-btn"
+                          onClick={() => startEdit(product)}
+                          title="Edit"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          className="admin-delete-btn"
+                          onClick={() => setDeleteId(product.id)}
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Edit form */}
-      {editingId && (
-        <ProductForm
-          title="Edit Product"
-          onSave={handleEdit}
-          onCancel={() => {
-            setEditingId(null)
-            setFormData(emptyProduct)
-          }}
-        />
-      )}
-
-      {/* Products table */}
-      {loading ? (
-        <div className="admin-loading">Loading products...</div>
-      ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Product Name</th>
-                <th>Brand</th>
-                <th>Category</th>
-                <th>Country</th>
-                <th>Price (GHS)</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map((product) => (
-                <tr key={product.id}>
-                  <td className="td-code">{product.code}</td>
-                  <td className="td-name">{product.name}</td>
-                  <td>{product.brand}</td>
-                  <td>{product.category}</td>
-                  <td>{product.country}</td>
-                  <td className="td-price">
-                    GHS {Number(product.price).toFixed(2)}
-                  </td>
-                  <td className="td-actions">
-                    <button
-                      className="admin-edit-btn"
-                      onClick={() => startEdit(product)}
-                      title="Edit"
-                    >
-                      <Pencil size={14} />
-                    </button>
-                    <button
-                      className="admin-delete-btn"
-                      onClick={() => setDeleteId(product.id)}
-                      title="Delete"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Featured Tab */}
+      {activeTab === 'featured' && (
+        <div className="admin-featured-section">
+          <p className="admin-featured-hint">
+            These products appear first in the catalogue. Use the arrows to reorder them.
+          </p>
+          {featuredProducts.length === 0 ? (
+            <div className="admin-loading">
+              No featured products yet. Go to All Products and click the ⭐ star to add some.
+            </div>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Price (GHS)</th>
+                    <th>Move</th>
+                    <th>Remove</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {featuredProducts.map((product, index) => (
+                    <tr key={product.id}>
+                      <td className="td-code">#{index + 1}</td>
+                      <td>
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="admin-table-image"
+                          />
+                        ) : (
+                          <div className="admin-table-no-image">🍾</div>
+                        )}
+                      </td>
+                      <td className="td-name">{product.name}</td>
+                      <td>{product.brand}</td>
+                      <td className="td-price">
+                        GHS {Math.round(product.price).toLocaleString('en-GH')}
+                      </td>
+                      <td>
+                        <div className="admin-move-btns">
+                          <button
+                            className="admin-move-btn"
+                            onClick={() => handleMoveFeatured(product, 'up')}
+                            disabled={index === 0}
+                            title="Move up"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            className="admin-move-btn"
+                            onClick={() => handleMoveFeatured(product, 'down')}
+                            disabled={index === featuredProducts.length - 1}
+                            title="Move down"
+                          >
+                            ↓
+                          </button>
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          className="admin-delete-btn"
+                          onClick={() => handleToggleFeatured(product)}
+                          title="Remove from featured"
+                        >
+                          <StarOff size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>

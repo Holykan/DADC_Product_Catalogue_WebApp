@@ -21,7 +21,7 @@
   white-space: nowrap;
 }
 
-/* ── Modal ── */
+/* ── Modal overlay ── */
 .admin-modal-overlay {
   position: fixed;
   inset: 0;
@@ -33,6 +33,7 @@
   padding: 1rem;
 }
 
+/* ── Delete modal ── */
 .admin-modal {
   background: #fff;
   border-radius: 16px;
@@ -58,6 +59,23 @@
 .admin-modal-actions {
   display: flex;
   gap: 0.75rem;
+}
+
+/* ── Form modal ── */
+.admin-form-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.admin-form-modal .admin-form-card {
+  margin: 0;
+  border: none;
+  box-shadow: none;
 }
 
 /* ── Header ── */
@@ -112,6 +130,38 @@
 
 .admin-logout-btn:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Tabs ── */
+.admin-tabs {
+  display: flex;
+  gap: 0;
+  padding: 1.2rem 2rem 0 2rem;
+  border-bottom: 2px solid #e2e8f0;
+  background: #fff;
+}
+
+.admin-tab {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.admin-tab:hover {
+  color: #0f2a4a;
+}
+
+.admin-tab.active {
+  color: #0f2a4a;
+  border-bottom-color: #0f2a4a;
 }
 
 /* ── Actions bar ── */
@@ -230,6 +280,88 @@
 .admin-template-btn:hover {
   border-color: #1461b0;
   color: #1461b0;
+}
+
+/* ── Image section in form ── */
+.admin-image-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-image-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-image-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+
+.admin-image-placeholder {
+  font-size: 1.5rem;
+  color: #cbd5e1;
+}
+
+.admin-image-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-image-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #0f2a4a;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+}
+
+.admin-image-upload-btn:hover {
+  background-color: #1461b0;
+}
+
+.admin-image-remove-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: 1px solid #fcc;
+  color: #e8312a;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+
+.admin-image-remove-btn:hover {
+  background: #fff0f0;
 }
 
 /* ── Form card ── */
@@ -407,6 +539,99 @@
   align-items: center;
 }
 
+/* ── Table image ── */
+.admin-table-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 2px;
+}
+
+.admin-table-no-image {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+/* ── Featured button ── */
+.admin-featured-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.admin-featured-btn:hover {
+  background: #fff8e1;
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+.admin-featured-btn.active {
+  background: #fff8e1;
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+/* ── Featured section ── */
+.admin-featured-section {
+  padding: 1.2rem 2rem;
+}
+
+.admin-featured-hint {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+/* ── Move buttons ── */
+.admin-move-btns {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.admin-move-btn {
+  background: #f0f7ff;
+  border: 1px solid #dbeafe;
+  color: #1461b0;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+
+.admin-move-btn:hover {
+  background: #1461b0;
+  color: #fff;
+}
+
+.admin-move-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── Edit/Delete buttons ── */
 .admin-edit-btn {
   background: #f0f7ff;
   border: 1px solid #dbeafe;
@@ -494,6 +719,18 @@
   }
 
   .admin-header {
+    padding: 1rem;
+  }
+
+  .admin-form-modal {
+    max-height: 95vh;
+  }
+
+  .admin-tabs {
+    padding: 1rem 1rem 0 1rem;
+  }
+
+  .admin-featured-section {
     padding: 1rem;
   }
 }

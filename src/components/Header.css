@@ -88,88 +88,45 @@
   color: #fff;
 }
 
-.dots-btn {
-  font-size: 1.4rem;
-  letter-spacing: 1px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  display: none;
-}
-
-/* ── Dropdown menu ── */
-.menu-wrapper {
-  position: relative;
-  display: none;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 44px;
-  right: 0;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem;
-  min-width: 160px;
-  z-index: 200;
-}
-
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  padding: 0.6rem 0.8rem;
-  border: none;
-  background: transparent;
-  color: #0f2a4a;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: 8px;
-  text-align: left;
-  font-family: 'DM Sans', sans-serif;
-  transition: background 0.15s;
-}
-
-.dropdown-item:hover {
-  background: #f0f7ff;
-  color: #1461b0;
-}
-
-/* ── Download button ── */
-.download-btn {
-  background-color: #1461b0;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.download-btn:hover {
-  background-color: #1a72cc;
-  transform: translateY(-1px);
-}
-
-.download-btn:active {
-  transform: translateY(0);
-}
-
 /* ── Desktop icons ── */
 .desktop-icons {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* ── View toggle ── */
+.view-toggle {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.view-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.view-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.view-btn.active {
+  background: #fff;
+  color: #0f2a4a;
 }
 
 /* ── Mobile only ── */
@@ -187,37 +144,11 @@
     font-size: 0.95rem;
   }
 
-  .header-updated {
-    display: none;
+  .header-divider {
+    height: 28px;
   }
 
   .desktop-icons {
-    display: none;
-  }
-
-  .menu-wrapper {
-    display: block;
-  }
-
-  .dots-btn {
     display: flex;
-  }
-
-  .download-btn {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .download-text {
-    display: none;
-  }
-
-  .header-divider {
-    height: 28px;
   }
 }

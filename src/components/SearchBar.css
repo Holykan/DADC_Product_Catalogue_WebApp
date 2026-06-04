@@ -7,30 +7,6 @@
   border: 1px solid #e2e8f0;
 }
 
-/* ── Last updated ── */
-.searchbar-updated {
-  display: none;
-  align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.85rem;
-}
-
-.updated-dot {
-  width: 8px;
-  height: 8px;
-  min-width: 8px;
-  border-radius: 50%;
-  background-color: #4ade80;
-  display: inline-block;
-  box-shadow: 0 0 6px #4ade80;
-}
-
-.updated-text {
-  font-size: 0.75rem;
-  color: #64748b;
-  white-space: nowrap;
-}
-
 /* ── Search row ── */
 .searchbar-inner {
   display: flex;
@@ -80,15 +56,42 @@
   color: #94a3b8;
 }
 
+.search-clear {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-clear:hover {
+  color: #0f2a4a;
+}
+
 /* ── Filters ── */
 .filters {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  width: 100%;
+}
+
+/* ── Filter select wrap ── */
+.filter-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 130px;
 }
 
 .filter-select {
+  width: 100%;
   height: 44px;
   padding: 0 2rem 0 1rem;
   border: 1px solid #e2e8f0;
@@ -112,6 +115,36 @@
   border-color: #1461b0;
 }
 
+.filter-select.active {
+  border-color: #1461b0;
+  color: #1461b0;
+  font-weight: 600;
+}
+
+.filter-clear-btn {
+  position: absolute;
+  right: 28px;
+  background: #e2e8f0;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  padding: 0;
+  transition: background 0.15s;
+  z-index: 1;
+}
+
+.filter-clear-btn:hover {
+  background: #cbd5e1;
+  color: #0f2a4a;
+}
+
+/* ── Filter button ── */
 .filter-btn {
   height: 44px;
   padding: 0 1rem;
@@ -127,13 +160,50 @@
   white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 100px;
+  justify-content: center;
 }
 
 .filter-btn:hover {
   border-color: #1461b0;
   background-color: #f0f7ff;
   color: #1461b0;
+}
+
+.filter-btn.active {
+  background-color: #0f2a4a;
+  color: #fff;
+  border-color: #0f2a4a;
+}
+
+/* ── Clear all button ── */
+.clear-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  height: 44px;
+  padding: 0 0.85rem;
+  border: 1px solid #fcc;
+  border-radius: 10px;
+  background-color: #fff0f0;
+  color: #c0392b;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 100px;
+}
+
+.clear-all-btn:hover {
+  background-color: #c0392b;
+  color: #fff;
+  border-color: #c0392b;
 }
 
 /* ── Results count ── */
@@ -148,18 +218,10 @@
   font-weight: 700;
 }
 
-/* ── Mobile only ── */
 @media (max-width: 768px) {
   .searchbar-wrapper {
     margin: 0.75rem;
     padding: 0.9rem 1rem;
-  }
-
-  .searchbar-updated {
-    display: flex !important;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.85rem;
   }
 
   .searchbar-inner {
@@ -174,47 +236,32 @@
   }
 
   .filters {
-    width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
   }
 
-  .filter-select {
+  .filter-select-wrap {
+    min-width: unset;
+    flex: unset;
     width: 100%;
-    padding: 0 1.5rem 0 0.75rem;
+  }
+
+  .filter-select {
     font-size: 0.82rem;
   }
 
   .filter-btn {
-    width: 100%;
+    min-width: unset;
     font-size: 0.82rem;
-    padding: 0 0.75rem;
-  }
-
-  .filter-btn:last-child {
+    flex: unset;
+    width: 100%;
     grid-column: 1 / -1;
   }
-}
 
-.search-clear {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  font-size: 0.8rem;
-  padding: 0.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.search-clear:hover {
-  color: #0f2a4a;
-}
-
-.filter-btn.active {
-  background-color: #0f2a4a;
-  color: #fff;
-  border-color: #0f2a4a;
+  .clear-all-btn {
+    grid-column: 1 / -1;
+    min-width: unset;
+    flex: unset;
+  }
 }

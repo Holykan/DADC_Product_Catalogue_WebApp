@@ -34,3 +34,31 @@ body {
   color: #94a3b8;
   font-size: 0.95rem;
 }
+
+/* ── Skeleton grid wrapper ── */
+.skeleton-grid-wrapper {
+  padding: 1.5rem 2rem;
+}
+
+.skeleton-grid-wrapper .product-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 1024px) {
+  .skeleton-grid-wrapper .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .skeleton-grid-wrapper {
+    padding: 0.75rem;
+  }
+
+  .skeleton-grid-wrapper .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}

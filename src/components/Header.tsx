@@ -1,20 +1,13 @@
-import { useState } from 'react'
 import './Header.css'
-import {
-  HelpCircle,
-  Moon,
-  Bell,
-  MoreHorizontal,
-  Download,
-} from 'lucide-react'
+import { Bell, LayoutGrid, List } from 'lucide-react'
 
 type Props = {
   onDownloadPDF: () => void
+  viewMode: 'grid' | 'list'
+  onToggleView: () => void
 }
 
-const Header = ({ onDownloadPDF }: Props) => {
-  const [menuOpen, setMenuOpen] = useState(false)
-
+const Header = ({ viewMode, onToggleView }: Props) => {
   return (
     <header className="header">
       <div className="header-left">
@@ -31,46 +24,26 @@ const Header = ({ onDownloadPDF }: Props) => {
 
       <div className="header-right">
 
-        {/* Desktop icons — hidden on mobile */}
-        <div className="desktop-icons">
-          <button className="icon-btn" title="Help">
-            <HelpCircle size={18} />
-          </button>
-          <button className="icon-btn" title="Dark mode">
-            <Moon size={18} />
-          </button>
-          <button className="icon-btn" title="Notifications">
-            <Bell size={18} />
-          </button>
-        </div>
-
-        {/* Three dots menu — mobile only */}
-        <div className="menu-wrapper">
+        {/* View toggle */}
+        <div className="view-toggle">
           <button
-            className="icon-btn dots-btn"
-            onClick={() => setMenuOpen(!menuOpen)}
-            title="More options"
+            className={viewMode === 'grid' ? 'view-btn active' : 'view-btn'}
+            onClick={() => viewMode !== 'grid' && onToggleView()}
+            title="Grid View"
           >
-            <MoreHorizontal size={20} />
+            <LayoutGrid size={17} />
           </button>
-          {menuOpen && (
-            <div className="dropdown-menu">
-              <button className="dropdown-item">
-                <HelpCircle size={15} /> Help
-              </button>
-              <button className="dropdown-item">
-                <Moon size={15} /> Dark Mode
-              </button>
-              <button className="dropdown-item">
-                <Bell size={15} /> Notifications
-              </button>
-            </div>
-          )}
+          <button
+            className={viewMode === 'list' ? 'view-btn active' : 'view-btn'}
+            onClick={() => viewMode !== 'list' && onToggleView()}
+            title="List View"
+          >
+            <List size={17} />
+          </button>
         </div>
 
-        <button className="download-btn" onClick={onDownloadPDF}>
-          <Download size={16} />
-          <span className="download-text">Download PDF</span>
+        <button className="icon-btn" title="Notifications">
+          <Bell size={18} />
         </button>
 
       </div>

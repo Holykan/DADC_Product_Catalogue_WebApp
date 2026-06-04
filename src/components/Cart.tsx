@@ -25,6 +25,10 @@ type Props = {
   onRemove: (productId: number) => void
 }
 
+const formatPrice = (amount: number) => {
+  return 'GHS ' + Math.round(amount).toLocaleString('en-GH')
+}
+
 const generateOrderNumber = () => {
   const date = new Date()
   const dateStr =
@@ -59,7 +63,6 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
     const pageWidth = pdf.internal.pageSize.getWidth()
     const pageHeight = pdf.internal.pageSize.getHeight()
 
-    // ── Logo top left ──
     const img = new Image()
     img.src = '/dadc_logo.png'
     await new Promise((resolve) => { img.onload = resolve })
@@ -67,7 +70,6 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
     const imgHeight = (img.height * imgWidth) / img.width
     pdf.addImage(img, 'WEBP', 14, 12, imgWidth, imgHeight)
 
-    // ── ORDER REQUEST top right ──
     pdf.setFontSize(20)
     pdf.setFont('helvetica', 'bold')
     pdf.setTextColor(15, 42, 74)
@@ -79,14 +81,12 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
     pdf.text(orderNumber, pageWidth - 14, 28, { align: 'right' })
     pdf.text(getDate(), pageWidth - 14, 34, { align: 'right' })
 
-    // ── Divider ──
     let y = Math.max(12 + imgHeight, 40) + 6
     pdf.setDrawColor(220, 220, 220)
     pdf.setLineWidth(0.5)
     pdf.line(14, y, pageWidth - 14, y)
     y += 8
 
-    // ── Bill To ──
     pdf.setFontSize(8)
     pdf.setFont('helvetica', 'bold')
     pdf.setTextColor(15, 42, 74)
@@ -99,19 +99,17 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
     pdf.text(customerName, 14, y)
     y += 10
 
-    // ── Items Table ──
     const rows = items.map((item) => [
-      String(item.product.code),
       item.product.name +
         (item.product.bottle_size_cl ? ' - ' + item.product.bottle_size_cl : ''),
       String(item.quantity),
-      Number(item.product.price).toFixed(2),
-      (item.product.price * item.quantity).toFixed(2),
+      'GHS ' + Math.round(item.product.price).toLocaleString('en-GH'),
+      'GHS ' + Math.round(item.product.price * item.quantity).toLocaleString('en-GH'),
     ])
 
     autoTable(pdf, {
       startY: y,
-      head: [['Item Code', 'Description', 'Qty', 'Unit Price (GHS)', 'Total (GHS)']],
+      head: [['Description', 'Qty', 'Unit Price (GHS)', 'Total (GHS)']],
       body: rows,
       headStyles: {
         fillColor: [15, 42, 74],
@@ -121,11 +119,10 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
         cellPadding: { top: 4, bottom: 4, left: 5, right: 5 },
       },
       columnStyles: {
-        0: { cellWidth: 25, fontSize: 8, textColor: [80, 80, 80] },
-        1: { cellWidth: 'auto', fontSize: 8, textColor: [50, 65, 85] },
-        2: { cellWidth: 15, halign: 'center', fontSize: 8 },
-        3: { cellWidth: 35, halign: 'right', fontSize: 8 },
-        4: {
+        0: { cellWidth: 'auto', fontSize: 8, textColor: [50, 65, 85] },
+        1: { cellWidth: 15, halign: 'center', fontSize: 8 },
+        2: { cellWidth: 35, halign: 'right', fontSize: 8 },
+        3: {
           cellWidth: 35,
           halign: 'right',
           fontStyle: 'bold',
@@ -146,22 +143,24 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
 
     y = (pdf as any).lastAutoTable.finalY + 4
 
-    // ── Divider ──
     pdf.setDrawColor(220, 220, 220)
     pdf.setLineWidth(0.5)
     pdf.line(14, y, pageWidth - 14, y)
     y += 8
 
-    // ── Total ──
     pdf.setFontSize(11)
     pdf.setFont('helvetica', 'bold')
     pdf.setTextColor(15, 42, 74)
     pdf.text('TOTAL:', pageWidth - 14 - 50, y)
     pdf.setTextColor(220, 50, 50)
-    pdf.text('GHS ' + total.toFixed(2), pageWidth - 14, y, { align: 'right' })
+    pdf.text(
+      'GHS ' + Math.round(total).toLocaleString('en-GH'),
+      pageWidth - 14,
+      y,
+      { align: 'right' }
+    )
     y += 16
 
-    // ── Footer ──
     pdf.setDrawColor(220, 220, 220)
     pdf.setLineWidth(0.5)
     pdf.line(14, pageHeight - 20, pageWidth - 14, pageHeight - 20)
@@ -175,7 +174,6 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
     pdf.setTextColor(150, 150, 150)
     pdf.text('Page 1', pageWidth - 14, pageHeight - 13, { align: 'right' })
 
-    // ── Generate and share ──
     const pdfBlob = pdf.output('blob')
     const fileName = orderNumber + '.pdf'
     const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' })
@@ -239,11 +237,9 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
               <div key={item.product.id} className="cart-item">
                 <div className="cart-item-info">
                   <p className="cart-item-name">{item.product.name}</p>
-                  <p className="cart-item-meta">
-                    #{item.product.code} · {item.product.brand}
-                  </p>
+                  <p className="cart-item-meta">{item.product.brand}</p>
                   <p className="cart-item-price">
-                    GHS {Number(item.product.price).toFixed(2)} each
+                    {formatPrice(item.product.price)} each
                   </p>
                 </div>
                 <div className="cart-item-right">
@@ -256,7 +252,20 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
                           : onUpdateQuantity(item.product.id, item.quantity - 1)
                       }
                     >−</button>
-                    <span className="cart-qty-value">{item.quantity}</span>
+                    <input
+                      className="cart-qty-value"
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value)
+                        if (!isNaN(val) && val > 0) {
+                          onUpdateQuantity(item.product.id, val)
+                        } else if (e.target.value === '') {
+                          onUpdateQuantity(item.product.id, 1)
+                        }
+                      }}
+                    />
                     <button
                       className="cart-qty-btn"
                       onClick={() =>
@@ -265,12 +274,12 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
                     >+</button>
                   </div>
                   <p className="cart-item-subtotal">
-                    GHS {(item.product.price * item.quantity).toFixed(2)}
+                    {formatPrice(item.product.price * item.quantity)}
                   </p>
                   <button
                     className="cart-remove"
                     onClick={() => onRemove(item.product.id)}
-                  >🗑️</button>
+                  >🗑</button>
                 </div>
               </div>
             ))
@@ -283,7 +292,7 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
             <div className="cart-total">
               <span>Total</span>
               <span className="cart-total-amount">
-                GHS {total.toFixed(2)}
+                {formatPrice(total)}
               </span>
             </div>
             {!customerName.trim() && (
