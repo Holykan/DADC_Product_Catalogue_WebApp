@@ -10,7 +10,10 @@ type Product = {
   brand: string
   category: string
   subcategory: string
+  supplier: string
   country: string
+  bottle_size_cl: number
+  pack_size: number
   image_url: string
   featured: boolean
   featured_order: number
