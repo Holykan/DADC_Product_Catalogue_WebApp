@@ -8,8 +8,14 @@ type Product = {
   price: number
   brand: string
   category: string
+  subcategory: string
+  supplier: string
+  country: string
   bottle_size_cl: number
   pack_size: number
+  image_url: string
+  featured: boolean
+  featured_order: number
 }
 
 export type CartItem = {
@@ -64,7 +70,7 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
     const pageHeight = pdf.internal.pageSize.getHeight()
 
     const img = new Image()
-    img.src = '/dadc_logo.png'
+    img.src = '/dadc_logo.'
     await new Promise((resolve) => { img.onload = resolve })
     const imgWidth = 45
     const imgHeight = (img.height * imgWidth) / img.width
