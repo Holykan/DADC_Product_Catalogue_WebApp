@@ -1,20 +1,6 @@
 import './ProductGrid.css'
 import { useState } from 'react'
-import type { CartItem } from './Cart'
-
-type Product = {
-  id: number
-  code: number
-  name: string
-  price: number
-  brand: string
-  category: string
-  subcategory: string
-  country: string
-  image_url: string
-  featured: boolean
-  featured_order: number
-}
+import type { Product, CartItem } from '../types'
 
 type Props = {
   products: Product[]

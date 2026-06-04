@@ -1,27 +1,8 @@
 import './Cart.css'
 import { useState } from 'react'
+import type { Product, CartItem } from '../types'
 
-type Product = {
-  id: number
-  code: number
-  name: string
-  price: number
-  brand: string
-  category: string
-  subcategory: string
-  supplier: string
-  country: string
-  bottle_size_cl: number
-  pack_size: number
-  image_url: string
-  featured: boolean
-  featured_order: number
-}
-
-export type CartItem = {
-  product: Product
-  quantity: number
-}
+export type { CartItem }
 
 type Props = {
   isOpen: boolean
@@ -207,7 +188,6 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
 
       <div className={isOpen ? 'cart-panel open' : 'cart-panel'}>
 
-        {/* Header */}
         <div className="cart-header">
           <div className="cart-header-left">
             <h2 className="cart-title">🛒 Your Order</h2>
@@ -218,7 +198,6 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
           <button className="cart-close" onClick={onClose}>✕</button>
         </div>
 
-        {/* Customer name */}
         <div className="cart-customer">
           <label className="cart-label">Customer Name *</label>
           <input
@@ -230,7 +209,6 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
           />
         </div>
 
-        {/* Items */}
         <div className="cart-items">
           {items.length === 0 ? (
             <div className="cart-empty">
@@ -292,7 +270,6 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
           )}
         </div>
 
-        {/* Footer */}
         {items.length > 0 && (
           <div className="cart-footer">
             <div className="cart-total">

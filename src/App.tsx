@@ -10,24 +10,7 @@ import Cart from './components/Cart'
 import AdminLogin from './pages/AdminLogin'
 import Admin from './pages/Admin'
 import { supabase } from './supabaseClient'
-import type { CartItem } from './components/Cart'
-
-type Product = {
-  id: number
-  code: number
-  name: string
-  price: number
-  brand: string
-  category: string
-  subcategory: string
-  supplier: string
-  country: string
-  bottle_size_cl: number
-  pack_size: number
-  image_url: string
-  featured: boolean
-  featured_order: number
-}
+import type { Product, CartItem } from './types'
 
 export type Filters = {
   search: string
