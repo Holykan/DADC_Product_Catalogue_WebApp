@@ -151,4 +151,8 @@
   .desktop-icons {
     display: flex;
   }
+
+  .icon-btn {
+    display: none;
+  }
 }
