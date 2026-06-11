@@ -1,57 +1,94 @@
 import { useState } from 'react'
 import './AdminLogin.css'
+import { supabase } from '../supabaseClient'
+import { Eye, EyeOff } from 'lucide-react'
 
-const ADMIN_PASSWORD = 'dadc2026admin'
-
-type Props = {
-  onLogin: () => void
-}
-
-const AdminLogin = ({ onLogin }: Props) => {
+const AdminLogin = () => {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = () => {
-    if (password === ADMIN_PASSWORD) {
-      onLogin()
-    } else {
-      setError(true)
-      setPassword('')
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        setError(error.message)
+      } else if (data.session) {
+        window.location.reload()
+        return
+      }
+    } catch (err) {
+      setError('Connection error — please try again')
     }
-  }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSubmit()
+    setLoading(false)
   }
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <img src="/dadc_logo.webp" alt="DADC Logo" className="login-logo" />
-        <h1 className="login-title">Admin Access</h1>
-        <p className="login-subtitle">Enter your password to continue</p>
+    <div className="admin-login-page">
+      <form className="admin-login-card" onSubmit={handleLogin}>
+        <img src="/dadc_logo.webp" alt="DADC" className="admin-login-logo" />
+        <h1 className="admin-login-title">Admin Panel</h1>
+        <p className="admin-login-subtitle">Sign in to manage your catalogue</p>
 
-        <div className="login-form">
+        <div className="admin-login-group">
+          <label htmlFor="admin-email">Email</label>
           <input
-            type="password"
-            className={error ? 'login-input error' : 'login-input'}
-            placeholder="Enter password..."
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-              setError(false)
-            }}
-            onKeyDown={handleKeyDown}
-            autoFocus
+            id="admin-email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="admin@dadc.com"
+            autoComplete="email"
+            required
           />
-          {error && (
-            <p className="login-error">⚠️ Incorrect password. Try again.</p>
-          )}
-          <button className="login-btn" onClick={handleSubmit}>
-            Enter Admin Panel
-          </button>
         </div>
-      </div>
+
+        <div className="admin-login-group">
+          <label htmlFor="admin-password">Password</label>
+          <div className="admin-login-password-wrap">
+            <input
+              id="admin-password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              autoComplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              className="admin-login-eye"
+              onClick={() => setShowPassword(!showPassword)}
+              title={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+            </button>
+          </div>
+        </div>
+
+        {error && <p className="admin-login-error">⚠️ {error}</p>}
+
+        <button
+          type="submit"
+          className="admin-login-btn"
+          disabled={loading}
+        >
+          {loading ? 'Signing in...' : 'Sign In'}
+        </button>
+      </form>
     </div>
   )
 }

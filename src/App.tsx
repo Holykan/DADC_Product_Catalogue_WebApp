@@ -295,13 +295,29 @@ function CataloguePage() {
 }
 
 function AdminPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [hasSession, setHasSession] = useState<boolean | null>(null)
 
-  if (!isLoggedIn) {
-    return <AdminLogin onLogin={() => setIsLoggedIn(true)} />
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setHasSession(!!data.session)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setHasSession(!!session)
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
+
+  if (hasSession === null) {
+    return <div className="loading">Loading...</div>
   }
 
-  return <Admin onLogout={() => setIsLoggedIn(false)} />
+  if (!hasSession) {
+    return <AdminLogin />
+  }
+
+  return <Admin onLogout={() => supabase.auth.signOut()} />
 }
 
 function App() {
