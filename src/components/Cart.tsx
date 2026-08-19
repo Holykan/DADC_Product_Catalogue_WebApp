@@ -148,6 +148,23 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }: Props) => 
     )
     y += 16
 
+    // ── Delivery note (boxed, sits just above the footer) ──
+    const noteY = pageHeight - 34
+    pdf.setFillColor(240, 247, 255)
+    pdf.setDrawColor(219, 234, 254)
+    pdf.setLineWidth(0.3)
+    pdf.roundedRect(14, noteY, pageWidth - 28, 9, 2, 2, 'FD')
+
+    pdf.setFontSize(8.5)
+    pdf.setFont('helvetica', 'bold')
+    pdf.setTextColor(15, 42, 74)
+    pdf.text('Kindly note:', 18, noteY + 5.7)
+
+    pdf.setFont('helvetica', 'normal')
+    pdf.setTextColor(50, 65, 85)
+    pdf.text('Confirmed orders are delivered within 48 hours.', 38, noteY + 5.7)
+
+    // ── Footer ──
     pdf.setDrawColor(220, 220, 220)
     pdf.setLineWidth(0.5)
     pdf.line(14, pageHeight - 20, pageWidth - 14, pageHeight - 20)
